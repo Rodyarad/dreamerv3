@@ -8,7 +8,7 @@
 import numpy as np
 import cv2
 import skvideo.io
-import imageio
+import cv2
 import random
 import tqdm
 
@@ -146,8 +146,10 @@ class RandomVideoSource(ImageSource):
             for fname in tqdm.tqdm(self.filelist, desc="Loading videos for natural", position=0):
                 #if self.grayscale: frames = skvideo.io.vread(fname, outputdict={"-pix_fmt": "gray"})
                 #else:              frames = skvideo.io.vread(fname)
-                if self.grayscale: frames = imageio.get_reader(fname, 'ffmpeg', format='gray')
-                else:              frames = imageio.get_reader(fname, 'ffmpeg')
+                cap = cv2.VideoCapture(fname)
+                frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) if self.grayscale else frame for frame in iter(lambda: cap.read()[1], None)]
+                cap.release()
+
                 local_arr = np.zeros((frames.shape[0], self.shape[0], self.shape[1]) + ((3,) if not self.grayscale else (1,)))
                 for i in tqdm.tqdm(range(frames.shape[0]), desc="video frames", position=1):
                     local_arr[i] = cv2.resize(frames[i], (self.shape[1], self.shape[0])) ## THIS IS NOT A BUG! cv2 uses (width, height)
@@ -167,8 +169,9 @@ class RandomVideoSource(ImageSource):
                     fname = self.filelist[file_i % len(self.filelist)]
                     #if self.grayscale: frames = skvideo.io.vread(fname, outputdict={"-pix_fmt": "gray"})
                      #else:              frames = skvideo.io.vread(fname)
-                    if self.grayscale: frames = imageio.get_reader(fname, 'ffmpeg', format='gray')
-                    else:              frames = imageio.get_reader(fname, 'ffmpeg')
+                    cap = cv2.VideoCapture(fname)
+                    frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) if self.grayscale else frame for frame in iter(lambda: cap.read()[1], None)]
+                    cap.release()
                     for frame_i in range(frames.shape[0]):
                         if total_frame_i >= self.total_frames: break
                         if self.grayscale:

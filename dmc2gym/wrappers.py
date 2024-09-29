@@ -1,7 +1,7 @@
 from gym import core, spaces
 import glob
 import os
-import dm_control as suite
+import local_dm_control_suite as suite
 from dm_env import specs
 import numpy as np
 import skimage.io

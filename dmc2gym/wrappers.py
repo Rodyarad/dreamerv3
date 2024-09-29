@@ -108,6 +108,7 @@ class DMCWrapper(core.Env):
                 self._bg_source = natural_imgsource.NoiseSource(shape2d)
             else:
                 files = glob.glob(os.path.expanduser(resource_files))
+                print(files)
                 assert len(files), "Pattern {} does not match any files".format(
                     resource_files
                 )

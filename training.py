@@ -59,7 +59,8 @@ def main():
             resource_files=resource_files,
             img_source=img_source,
             total_frames = 1000,
-            task_kwargs=task_kwargs,    
+            task_kwargs=task_kwargs,
+            visualize_reward=False,
         )
 
         env = from_gym.FromGym(env)

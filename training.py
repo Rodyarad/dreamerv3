@@ -56,7 +56,8 @@ def main():
             domain_name=domain_name,
             task_name=task_name,
             resource_files=resource_files,
-            img_source=img_source,     
+            img_source=img_source,
+            total_frames = 1000,    
         )
 
         env = from_gym.FromGym(env)

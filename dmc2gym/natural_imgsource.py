@@ -170,8 +170,8 @@ class RandomVideoSource(ImageSource):
                     #if self.grayscale: frames = skvideo.io.vread(fname, outputdict={"-pix_fmt": "gray"})
                     #else:              frames = skvideo.io.vread(fname)
                     #cap = cv2.VideoCapture(fname)
-                    if self.grayscale: im = cv2.imread(fname, cv2.IMREAD_GRAYSCALE)[..., None]
-                    else:              im = cv2.imread(fname, cv2.IMREAD_COLOR)
+                    if self.grayscale: frames = cv2.imread(fname, cv2.IMREAD_GRAYSCALE)[..., None]
+                    else:              frames = cv2.imread(fname, cv2.IMREAD_COLOR)
                     for frame_i in range(frames.shape[0]):
                         if total_frame_i >= self.total_frames: break
                         if self.grayscale:

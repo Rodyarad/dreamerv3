@@ -51,13 +51,15 @@ def main():
         task_name = "walk" 
         resource_files = "idealgas0.mp4" 
         img_source = "video"
+        task_kwargs = {'random': 42}
 
         env = DMCWrapper(
             domain_name=domain_name,
             task_name=task_name,
             resource_files=resource_files,
             img_source=img_source,
-            total_frames = 1000,    
+            total_frames = 1000,
+            task_kwargs=task_kwargs,    
         )
 
         env = from_gym.FromGym(env)

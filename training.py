@@ -49,7 +49,7 @@ def main():
         from embodied.envs import from_gym
         domain_name = "walker" 
         task_name = "walk" 
-        resource_files = "idealgas0.mp4" 
+        resource_files = "/content/dreamerv3/idealgas0.mp4" 
         img_source = "video"
         task_kwargs = {'random': 42}
 

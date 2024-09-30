@@ -151,6 +151,7 @@ class RandomVideoSource(ImageSource):
                 #else:              frames = cv2.imread(fname, cv2.IMREAD_COLOR)
                 cap = cv2.VideoCapture(fname)
                 frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[..., None] if self.grayscale else frame for ret, frame in iter(lambda: cap.read(), (False, None)) if ret]
+                frames = np.array(frames)
                 cap.release()
                 local_arr = np.zeros((frames.shape[0], self.shape[0], self.shape[1]) + ((3,) if not self.grayscale else (1,)))
                 for i in tqdm.tqdm(range(frames.shape[0]), desc="video frames", position=1):
@@ -175,6 +176,7 @@ class RandomVideoSource(ImageSource):
                     #else:              frames = cv2.imread(fname, cv2.IMREAD_COLOR)
                     cap = cv2.VideoCapture(fname)
                     frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[..., None] if self.grayscale else frame for ret, frame in iter(lambda: cap.read(), (False, None)) if ret]
+                    frames = np.array(frames)
                     cap.release()
                     for frame_i in range(frames.shape[0]):
                         if total_frame_i >= self.total_frames: break

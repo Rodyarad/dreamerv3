@@ -4,6 +4,7 @@ from functools import partial as bind
 import embodied
 import jax
 import jax.numpy as jnp
+import jax.scipy as jsp
 import numpy as np
 import optax
 import ruamel.yaml as yaml
@@ -22,7 +23,7 @@ sample = lambda dist: {
 
 
 @jaxagent.Wrapper
-class Agent(nj.Module):
+class Bisim_Agent(nj.Module):
 
   configs = yaml.YAML(typ='safe').load(
       (embodied.Path(__file__).parent / 'configs.yaml').read())
@@ -37,20 +38,23 @@ class Agent(nj.Module):
         k: v for k, v in obs_space.items()
         if k not in ('is_first', 'is_last', 'is_terminal', 'reward') and
         not k.startswith('log_') and re.match(config.enc.spaces, k)}
-    dec_space = {
-        k: v for k, v in obs_space.items()
-        if k not in ('is_first', 'is_last', 'is_terminal', 'reward') and
-        not k.startswith('log_') and re.match(config.dec.spaces, k)}
+    #Убран декодер
+    # dec_space = {
+    #     k: v for k, v in obs_space.items()
+    #     if k not in ('is_first', 'is_last', 'is_terminal', 'reward') and
+    #     not k.startswith('log_') and re.match(config.dec.spaces, k)}
     embodied.print('Encoder:', {k: v.shape for k, v in enc_space.items()})
-    embodied.print('Decoder:', {k: v.shape for k, v in dec_space.items()})
+    # embodied.print('Decoder:', {k: v.shape for k, v in dec_space.items()})
 
     # World Model
     self.enc = {
         'simple': bind(nets.SimpleEncoder, **config.enc.simple),
     }[config.enc.typ](enc_space, name='enc')
-    self.dec = {
-        'simple': bind(nets.SimpleDecoder, **config.dec.simple),
-    }[config.dec.typ](dec_space, name='dec')
+
+    #Убран декодер
+    # self.dec = {
+    #     'simple': bind(nets.SimpleDecoder, **config.dec.simple),
+    # }[config.dec.typ](dec_space, name='dec')
     self.dyn = {
         'rssm': bind(nets.RSSM, **config.dyn.rssm),
     }[config.dyn.typ](name='dyn')
@@ -86,14 +90,17 @@ class Agent(nj.Module):
     if config.separate_lrs:
       lr = {f'agent/{k}': v for k, v in config.lrs.items()}
     self.opt = jaxutils.Optimizer(lr, **kw, name='opt')
+    # self.modules = [
+    #     self.enc, self.dyn, self.dec, self.rew, self.con,
+    #     self.actor, self.critic]
     self.modules = [
-        self.enc, self.dyn, self.dec, self.rew, self.con,
+        self.enc, self.dyn, self.rew, self.con,
         self.actor, self.critic]
     scales = self.config.loss_scales.copy()
-    cnn = scales.pop('dec_cnn')
-    mlp = scales.pop('dec_mlp')
-    scales.update({k: cnn for k in self.dec.imgkeys})
-    scales.update({k: mlp for k in self.dec.veckeys})
+    # cnn = scales.pop('dec_cnn')
+    # mlp = scales.pop('dec_mlp')
+    # scales.update({k: cnn for k in self.dec.imgkeys})
+    # scales.update({k: mlp for k in self.dec.veckeys})
     self.scales = scales
 
   @property
@@ -200,18 +207,20 @@ class Agent(nj.Module):
           k: out['replay_outs'][k] for k in self.aux_spaces if k != 'stepid'})
       outs['replay']['stoch'] = jnp.argmax(
           outs['replay']['stoch'], -1).astype(jnp.int32)
-
+    #Убран декодер
     if self.config.replay.fracs.priority > 0:
       bs = data['is_first'].shape
       if self.config.replay.priosignal == 'td':
         priority = out['critic_loss'][:, 0].reshape(bs)
       elif self.config.replay.priosignal == 'model':
-        terms = [out[f'{k}_loss'] for k in (
-            'rep', 'dyn', *self.dec.veckeys, *self.dec.imgkeys)]
+        # terms = [out[f'{k}_loss'] for k in (
+        #     'rep', 'dyn', *self.dec.veckeys, *self.dec.imgkeys)]
+        terms = [out[f'{k}_loss'] for k in ('rep', 'dyn')]
         priority = jnp.stack(terms, 0).sum(0)
       elif self.config.replay.priosignal == 'all':
-        terms = [out[f'{k}_loss'] for k in (
-            'rep', 'dyn', *self.dec.veckeys, *self.dec.imgkeys)]
+        # terms = [out[f'{k}_loss'] for k in (
+        #     'rep', 'dyn', *self.dec.veckeys, *self.dec.imgkeys)]
+        terms = [out[f'{k}_loss'] for k in ('rep', 'dyn')]
         terms.append(out['actor_loss'][:, 0].reshape(bs))
         terms.append(out['critic_loss'][:, 0].reshape(bs))
         priority = jnp.stack(terms, 0).sum(0)
@@ -234,8 +243,12 @@ class Agent(nj.Module):
     embed = self.enc(data)
     newlat, outs = self.dyn.observe(prevlat, prevacts, embed, data['is_first'])
     rew_feat = outs if self.config.reward_grad else sg(outs)
+    #Убран декодер
+    # dists = dict(
+    #     **self.dec(outs),
+    #     reward=self.rew(rew_feat, training=True),
+    #     cont=self.con(outs, training=True))
     dists = dict(
-        **self.dec(outs),
         reward=self.rew(rew_feat, training=True),
         cont=self.con(outs, training=True))
     losses = {k: -v.log_prob(f32(data[k])) for k, v in dists.items()}
@@ -391,13 +404,50 @@ class Agent(nj.Module):
 
     # Combine
     losses = {k: v * self.scales[k] for k, v in losses.items()}
+
+    #Добавляем биссимуляционную функцию потерь
+    losses['bisim'] = self.bisim_loss(data)
+
     loss = jnp.stack([v.mean() for k, v in losses.items()]).sum()
     newact = {k: data[k][:, -1] for k in self.act_space}
     outs = {'replay_outs': replay_outs, 'prevacts': prevacts, 'embed': embed}
     outs.update({f'{k}_loss': v for k, v in losses.items()})
     carry = (newlat, newact)
     return loss, (outs, carry, metrics)
+  
+  # Реализация функции бисимуляционной потери
+  def bisim_loss(self, data):
+      h = self.enc(data) 
 
+      batch_size = data['is_first'].shape[0]
+      perm = jax.random.permutation(nj.seed(), batch_size)
+      h2 = h[perm]
+
+      action = self.actor(h, bdims=1)
+      _, next_latent = self.dyn.imagine(h, action, bdims=1)
+
+      reward = self.rew(next_latent)
+      reward2 = reward[perm]
+
+      pred_next_latent_logits = next_latent['logit']
+      pred_next_latent_logits2 = pred_next_latent_logits[perm]
+
+      #transition_dist = jnp.mean((pred_next_latent_logits - pred_next_latent_logits2) ** 2)
+
+      prob1 = jax.nn.softmax(pred_next_latent_logits, axis=-1)
+      prob2 = jax.nn.softmax(pred_next_latent_logits2, axis=-1)
+
+      transition_dist = jsp.special.kl_div(prob1, prob2).sum(axis=-1).mean()
+
+      z_dist = jnp.abs(h - h2).mean()
+      r_dist = jnp.abs(reward - reward2).mean()
+
+      bisimilarity = r_dist + 0.99 * sg(transition_dist)
+      loss = (z_dist - bisimilarity) ** 2
+      loss = jnp.mean(loss) 
+
+      return loss
+  
   def report(self, data, carry):
     self.config.jax.jit and embodied.print(
         'Tracing report function', color='yellow')
@@ -422,11 +472,18 @@ class Agent(nj.Module):
         data['is_first'][:, :num_obs])
     img_acts = {k: v[:, num_obs:] for k, v in outs['prevacts'].items()}
     img_outs = self.dyn.imagine(img_start, img_acts)[1]
+    #Убран декодер
+    # rec = dict(
+    #     **self.dec(rec_outs), reward=self.rew(rec_outs),
+    #     cont=self.con(rec_outs))
+    # img = dict(
+    #     **self.dec(img_outs), reward=self.rew(img_outs),
+    #     cont=self.con(img_outs))
     rec = dict(
-        **self.dec(rec_outs), reward=self.rew(rec_outs),
+        reward=self.rew(rec_outs),
         cont=self.con(rec_outs))
     img = dict(
-        **self.dec(img_outs), reward=self.rew(img_outs),
+        reward=self.rew(img_outs),
         cont=self.con(img_outs))
 
     # Prediction losses
@@ -438,13 +495,14 @@ class Agent(nj.Module):
     stats = jaxutils.balance_stats(img['cont'], data_img['cont'], 0.5)
     metrics.update({f'openl_cont_{k}': v for k, v in stats.items()})
 
-    # Video predictions
-    for key in self.dec.imgkeys:
-      true = f32(data[key][:6])
-      pred = jnp.concatenate([rec[key].mode()[:6], img[key].mode()[:6]], 1)
-      error = (pred - true + 1) / 2
-      video = jnp.concatenate([true, pred, error], 2)
-      metrics[f'openloop/{key}'] = jaxutils.video_grid(video)
+    #убран декодер
+    # # Video predictions
+    # for key in self.dec.imgkeys:
+    #   true = f32(data[key][:6])
+    #   pred = jnp.concatenate([rec[key].mode()[:6], img[key].mode()[:6]], 1)
+    #   error = (pred - true + 1) / 2
+    #   video = jnp.concatenate([true, pred, error], 2)
+    #   metrics[f'openloop/{key}'] = jaxutils.video_grid(video)
 
     # Grad norms per loss term
     if self.config.report_gradnorms:

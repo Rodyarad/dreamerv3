@@ -405,7 +405,7 @@ class Bisim_Agent(nj.Module):
     # Combine
     losses = {k: v * self.scales[k] for k, v in losses.items()}
 
-    #Добавляем биссимуляционную функцию потерь
+    #Добавляем бисимуляционную функцию потерь
     losses['bisim'] = self.bisim_loss(data)
 
     loss = jnp.stack([v.mean() for k, v in losses.items()]).sum()
@@ -419,8 +419,8 @@ class Bisim_Agent(nj.Module):
   def bisim_loss(self, data):
       h = self.enc(data) 
 
-      batch_size = data['is_first'].shape[0]
-      perm = jax.random.permutation(nj.seed(), batch_size)
+      batch_size = h.shape[0]
+      perm = np.random.permutation(batch_size)
       h2 = h[perm]
 
       action = self.actor(h, bdims=1)
@@ -429,10 +429,8 @@ class Bisim_Agent(nj.Module):
       reward = self.rew(next_latent)
       reward2 = reward[perm]
 
-      pred_next_latent_logits = next_latent['logit']
-      pred_next_latent_logits2 = pred_next_latent_logits[perm]
-
-      #transition_dist = jnp.mean((pred_next_latent_logits - pred_next_latent_logits2) ** 2)
+      pred_next_latent_logits = sg(next_latent['logit'])
+      pred_next_latent_logits2 = sg(pred_next_latent_logits[perm])
 
       prob1 = jax.nn.softmax(pred_next_latent_logits, axis=-1)
       prob2 = jax.nn.softmax(pred_next_latent_logits2, axis=-1)
@@ -442,7 +440,7 @@ class Bisim_Agent(nj.Module):
       z_dist = jnp.abs(h - h2).mean()
       r_dist = jnp.abs(reward - reward2).mean()
 
-      bisimilarity = r_dist + 0.99 * sg(transition_dist)
+      bisimilarity = r_dist + 0.99 * transition_dist
       loss = (z_dist - bisimilarity) ** 2
       loss = jnp.mean(loss) 
 

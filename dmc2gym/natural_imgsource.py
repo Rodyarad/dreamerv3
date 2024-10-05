@@ -8,7 +8,6 @@
 import numpy as np
 import cv2
 import skvideo.io
-import imageio
 import cv2
 import random
 import tqdm
@@ -147,8 +146,6 @@ class RandomVideoSource(ImageSource):
             for fname in tqdm.tqdm(self.filelist, desc="Loading videos for natural", position=0):
                 #if self.grayscale: frames = skvideo.io.vread(fname, outputdict={"-pix_fmt": "gray"})
                 #else:              frames = skvideo.io.vread(fname)
-                #if self.grayscale: frames = cv2.imread(fname, cv2.IMREAD_GRAYSCALE)[..., None]
-                #else:              frames = cv2.imread(fname, cv2.IMREAD_COLOR)
                 cap = cv2.VideoCapture(fname)
                 frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[..., None] if self.grayscale else frame for ret, frame in iter(lambda: cap.read(), (False, None)) if ret]
                 frames = np.array(frames)
@@ -172,9 +169,6 @@ class RandomVideoSource(ImageSource):
                     fname = self.filelist[file_i % len(self.filelist)]
                     #if self.grayscale: frames = skvideo.io.vread(fname, outputdict={"-pix_fmt": "gray"})
                     #else:              frames = skvideo.io.vread(fname)
-                    #if self.grayscale: frames = cv2.imread(fname, cv2.IMREAD_GRAYSCALE)[..., None]
-                    #else:              frames = cv2.imread(fname, cv2.IMREAD_COLOR)
-                    cap = cv2.VideoCapture(fname)
                     frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[..., None] if self.grayscale else frame for ret, frame in iter(lambda: cap.read(), (False, None)) if ret]
                     frames = np.array(frames)
                     cap.release()

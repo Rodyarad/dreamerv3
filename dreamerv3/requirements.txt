@@ -8,7 +8,7 @@ opencv-python
 pillow
 scikit-image
 scikit-video
-tb-nightly
+tensorboard
 tqdm
 pygame
 networkx

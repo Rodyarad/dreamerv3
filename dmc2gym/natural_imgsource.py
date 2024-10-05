@@ -169,6 +169,7 @@ class RandomVideoSource(ImageSource):
                     fname = self.filelist[file_i % len(self.filelist)]
                     #if self.grayscale: frames = skvideo.io.vread(fname, outputdict={"-pix_fmt": "gray"})
                     #else:              frames = skvideo.io.vread(fname)
+                    cap = cv2.VideoCapture(fname)
                     frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[..., None] if self.grayscale else frame for ret, frame in iter(lambda: cap.read(), (False, None)) if ret]
                     frames = np.array(frames)
                     cap.release()

@@ -45,22 +45,25 @@ def main():
         online=config.replay.online)
 
   def make_env(config, env_id=0):
-        from dmc2gym.wrappers import DMCWrapper
+        import dmc2gym
         from embodied.envs import from_gym
         domain_name = "walker" 
         task_name = "walk" 
         resource_files = "/content/dreamerv3/idealgas0.mp4" 
         img_source = "video"
-        task_kwargs = {'random': 42}
 
-        env = DMCWrapper(
+        env = dmc2gym.make(
             domain_name=domain_name,
             task_name=task_name,
             resource_files=resource_files,
             img_source=img_source,
             total_frames = 1000,
-            task_kwargs=task_kwargs,
+            seed = 42,
             visualize_reward=False,
+            from_pixels=True,
+            height=84,
+            width=84,
+            frame_skip=1
         )
 
         env = from_gym.FromGym(env)

@@ -263,18 +263,10 @@ class SimpleEncoder(nj.Module):
     if self.imgkeys:
       print('ENC')
       x = self.imginp(data, bdims, jaxutils.COMPUTE_DTYPE) - 0.5
-      print('Изначальне')
-      print(x.shape)
       x = x.reshape((-1, *x.shape[bdims:]))
-      print('После решейпа в энкодере')
-      print(x.shape)
       for i, depth in enumerate(self.depths):
         stride = 1 if self.outer and i == 0 else 2
         x = self.get(f'conv{i}', Conv2D, depth, self.kernel, stride, **kw)(x)
-        print(f'После слоя {i}')
-        print(x.shape)
-      print('И в самом конце')  
-      print(x.shape)
       assert x.shape[-3] == x.shape[-2] == self.minres, x.shape
       x = x.reshape((x.shape[0], -1))
       print(x.shape, 'out')

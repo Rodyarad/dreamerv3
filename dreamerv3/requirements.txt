@@ -18,7 +18,7 @@ colored
 ruamel.yaml
 termcolor
 msgpack
-gym
+gym==0.25.2
 cloudpickle
 gputil
 numpy

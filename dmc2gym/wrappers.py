@@ -85,7 +85,10 @@ class DMCWrapper(core.Env):
         # create observation space
         if from_pixels:
             self._observation_space = spaces.Box(
-                low=0, high=255, shape=[3, height, width], dtype=np.uint8
+                low=0, high=255, 
+                #shape=[3, height, width],
+                shape=[height, width, 3], 
+                dtype=np.uint8
             )
         else:
             self._observation_space = _spec_to_box(
@@ -113,9 +116,9 @@ class DMCWrapper(core.Env):
                     resource_files
                 )
                 if img_source == "images":
-                    self._bg_source = natural_imgsource.RandomImageSource(shape2d, files, grayscale=True, total_frames=total_frames)
+                    self._bg_source = natural_imgsource.RandomImageSource(shape2d, files, grayscale=False, total_frames=total_frames)
                 elif img_source == "video":
-                    self._bg_source = natural_imgsource.RandomVideoSource(shape2d, files, grayscale=True, total_frames=total_frames)
+                    self._bg_source = natural_imgsource.RandomVideoSource(shape2d, files, grayscale=False, total_frames=total_frames)
                 else:
                     raise Exception("img_source %s not defined." % img_source)
 
@@ -136,7 +139,7 @@ class DMCWrapper(core.Env):
                 mask = np.logical_and((obs[:, :, 2] > obs[:, :, 1]), (obs[:, :, 2] > obs[:, :, 0]))  # hardcoded for dmc
                 bg = self._bg_source.get_image()
                 obs[mask] = bg[mask]
-            obs = obs.transpose(2, 0, 1).copy()
+            #obs = obs.transpose(2, 0, 1).copy()
         else:
             obs = _flatten_obs(time_step.observation)
         return obs

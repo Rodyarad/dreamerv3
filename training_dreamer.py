@@ -49,7 +49,7 @@ def main():
         from embodied.envs import from_gym
         domain_name = "walker" 
         task_name = "walk" 
-        resource_files = "/content/dreamerv3/idealgas0.mp4" 
+        resource_files = "/home/rodya-rad/Desktop/mipt/dreamerv3/idealgas0.mp4" 
         img_source = "video"
 
         env = dmc2gym.make(
@@ -61,8 +61,8 @@ def main():
             seed = 42,
             visualize_reward=False,
             from_pixels=True,
-            height=84,
-            width=84,
+            height=64,
+            width=64,
             frame_skip=1
         )
 

@@ -144,10 +144,17 @@ class RandomVideoSource(ImageSource):
             self.arr = None
             random.shuffle(self.filelist)
             for fname in tqdm.tqdm(self.filelist, desc="Loading videos for natural", position=0):
-                #if self.grayscale: frames = skvideo.io.vread(fname, outputdict={"-pix_fmt": "gray"})
-                #else:              frames = skvideo.io.vread(fname)
                 cap = cv2.VideoCapture(fname)
-                frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[..., None] if self.grayscale else frame for ret, frame in iter(lambda: cap.read(), (False, None)) if ret]
+                frames = []
+                while True:
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    if self.grayscale:
+                        frame = cv2.cvtColor(frame, cv2.IMREAD_GRAYSCALE)
+                    else:
+                        frame = cv2.cvtColor(frame, cv2.IMREAD_COLOR)
+                    frames.append(frame)
                 frames = np.array(frames)
                 cap.release()
                 local_arr = np.zeros((frames.shape[0], self.shape[0], self.shape[1]) + ((3,) if not self.grayscale else (1,)))
@@ -167,10 +174,17 @@ class RandomVideoSource(ImageSource):
                     if file_i % len(self.filelist) == 0: random.shuffle(self.filelist)
                     file_i += 1
                     fname = self.filelist[file_i % len(self.filelist)]
-                    #if self.grayscale: frames = skvideo.io.vread(fname, outputdict={"-pix_fmt": "gray"})
-                    #else:              frames = skvideo.io.vread(fname)
                     cap = cv2.VideoCapture(fname)
-                    frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[..., None] if self.grayscale else frame for ret, frame in iter(lambda: cap.read(), (False, None)) if ret]
+                    frames = []
+                    while True:
+                        ret, frame = cap.read()
+                        if not ret:
+                            break
+                        if self.grayscale:
+                            frame = cv2.cvtColor(frame, cv2.IMREAD_GRAYSCALE)[..., None]
+                        else:
+                            frame = cv2.cvtColor(frame, cv2.IMREAD_COLOR)
+                        frames.append(frame)
                     frames = np.array(frames)
                     cap.release()
                     for frame_i in range(frames.shape[0]):
@@ -178,7 +192,7 @@ class RandomVideoSource(ImageSource):
                         if self.grayscale:
                             self.arr[total_frame_i] = cv2.resize(frames[frame_i], (self.shape[1], self.shape[0]))[..., None] ## THIS IS NOT A BUG! cv2 uses (width, height)
                         else:
-                            self.arr[total_frame_i] = cv2.resize(frames[frame_i], (self.shape[1], self.shape[0])) 
+                            self.arr[total_frame_i] = cv2.resize(frames[frame_i], (self.shape[1], self.shape[0]))
                         pbar.update(1)
                         total_frame_i += 1
 

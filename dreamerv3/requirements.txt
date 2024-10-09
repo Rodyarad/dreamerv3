@@ -7,7 +7,6 @@ tensorflow_probability
 opencv-python
 pillow
 scikit-image
-scikit-video
 tensorboard
 tqdm
 pygame
@@ -18,3 +17,11 @@ dm_env
 colored
 ruamel.yaml
 termcolor
+msgpack
+gym
+cloudpickle
+gputil
+numpy
+psutil
+tensorflow-cpu
+zmq

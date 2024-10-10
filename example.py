@@ -12,7 +12,6 @@ def main():
   config = embodied.Config(dreamerv3.Agent.configs['defaults'])
   config = config.update({
       **dreamerv3.Agent.configs['size100m'],
-      **dreamerv3.Agent.configs['dmc_vision'],
       'logdir': f'~/logdir/{embodied.timestamp()}-example',
       'run.train_ratio': 32,
   })

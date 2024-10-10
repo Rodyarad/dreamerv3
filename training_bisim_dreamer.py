@@ -1,5 +1,6 @@
 import warnings
 from functools import partial as bind
+import os
 
 import dreamerv3
 import embodied
@@ -11,8 +12,8 @@ def main():
 
   config = embodied.Config(dreamerv3.Agent.configs['defaults'])
   config = config.update({
-      **dreamerv3.Agent.configs['size100m'],
-      'logdir': f'~/logdir/{embodied.timestamp()}-example',
+      **dreamerv3.Agent.configs['dmc_vision'],
+      'logdir': f'~/logdir/log_orig_dreamerv3',
       'run.train_ratio': 32,
   })
   config = embodied.Flags(config).parse()
@@ -30,11 +31,12 @@ def main():
 
   def make_logger(config):
     logdir = embodied.Path(config.logdir)
+    os.environ['WANDB_API_KEY'] = 'f834350aba2607b8c5763f9edc8c9f1b47a5d29b'
     return embodied.Logger(embodied.Counter(), [
         embodied.logger.TerminalOutput(config.filter),
         embodied.logger.JSONLOutput(logdir, 'metrics.jsonl'),
-        embodied.logger.TensorBoardOutput(logdir),
-        # embodied.logger.WandbOutput(logdir.name, config=config),
+        #embodied.logger.TensorBoardOutput(logdir),
+        embodied.logger.WandBOutput(logdir.name, config=config),
     ])
 
   def make_replay(config):

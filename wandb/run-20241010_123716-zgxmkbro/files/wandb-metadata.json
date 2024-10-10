@@ -1,0 +1,43 @@
+{
+  "os":  "Linux-6.8.0-45-generic-x86_64-with-glibc2.39",
+  "python":  "3.12.7",
+  "startedAt":  "2024-10-10T09:37:16.640650Z",
+  "program":  "/home/rodya-rad/Desktop/mipt/dreamerv3/training_dreamer.py",
+  "codePath":  "training_dreamer.py",
+  "git":  {
+    "remote":  "https://github.com/Rodyarad/dreamerv3.git",
+    "commit":  "0b3854100a6a591cd5e825c0eed0ac92b832753b"
+  },
+  "email":  "r.vakhitov2018@gmail.com",
+  "root":  "/home/rodya-rad/Desktop/mipt/dreamerv3",
+  "host":  "rodya-rad-911-M16",
+  "username":  "rodya-rad",
+  "executable":  "/home/rodya-rad/anaconda3/envs/dream/bin/python",
+  "codePathLocal":  "training_dreamer.py",
+  "cpu_count":  8,
+  "cpu_count_logical":  12,
+  "gpu":  "[NVIDIA GeForce RTX 3060 Laptop GPU]",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "982240026624",
+      "used":  "47574036480"
+    }
+  },
+  "memory":  {
+    "total":  "16458285056"
+  },
+  "cpu":  {
+    "count":  8,
+    "countLogical":  12
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "memoryTotal":  "6442450944",
+      "cudaCores":  3840,
+      "architecture":  "Ampere"
+    }
+  ],
+  "cudaVersion":  "12.4"
+}

@@ -1,0 +1,447 @@
+_wandb:
+    value:
+        cli_version: 0.18.3
+        m: []
+        python_version: 3.12.7
+        t:
+            "1":
+                - 2
+                - 3
+                - 12
+                - 55
+            "2":
+                - 2
+                - 3
+                - 12
+                - 55
+            "3":
+                - 13
+                - 16
+                - 23
+                - 55
+                - 61
+            "4": 3.12.7
+            "5": 0.18.3
+            "8":
+                - 5
+            "12": 0.18.3
+            "13": linux-x86_64
+ac_grads:
+    value: none
+actent:
+    value: 0.0003
+actor:
+    value:
+        act: silu
+        block_fans: false
+        block_norm: false
+        inputs:
+            - deter
+            - stoch
+        layers: 3
+        maxstd: 1
+        minstd: 0.1
+        norm: rms
+        outscale: 0.01
+        unimix: 0.01
+        units: 256
+        winit: normal
+actor_dist_cont:
+    value: normal
+actor_dist_disc:
+    value: onehot
+advnorm:
+    value:
+        impl: "off"
+        limit: 1e-08
+        rate: 0.01
+batch_length:
+    value: 65
+batch_length_eval:
+    value: 33
+batch_size:
+    value: 16
+conhead:
+    value:
+        act: silu
+        block_fans: false
+        block_norm: false
+        dist: binary
+        inputs:
+            - deter
+            - stoch
+        layers: 1
+        norm: rms
+        outscale: 1
+        units: 256
+        winit: normal
+contdisc:
+    value: true
+critic:
+    value:
+        act: silu
+        bins: 255
+        block_fans: false
+        block_norm: false
+        dist: symexp_twohot
+        inputs:
+            - deter
+            - stoch
+        layers: 3
+        norm: rms
+        outscale: 0
+        units: 256
+        winit: normal
+dec:
+    value:
+        simple:
+            act: silu
+            block_fans: false
+            block_norm: false
+            block_space: 8
+            depth: 16
+            hidden_stoch: true
+            inputs:
+                - deter
+                - stoch
+            kernel: 5
+            layers: 3
+            minres: 4
+            mults:
+                - 1
+                - 2
+                - 3
+                - 4
+                - 4
+            norm: rms
+            outer: true
+            outscale: 1
+            space_hidden: 0
+            units: 256
+            vecdist: symlog_mse
+            winit: normal
+        spaces: image
+        typ: simple
+dyn:
+    value:
+        rssm:
+            absolute: false
+            act: silu
+            block_fans: false
+            block_norm: false
+            blocks: 8
+            cell: blockgru
+            classes: 16
+            deter: 2048
+            dynlayers: 1
+            hidden: 256
+            imglayers: 2
+            norm: rms
+            obslayers: 1
+            outscale: 1
+            stoch: 32
+            unimix: 0.01
+            winit: normal
+        typ: rssm
+enc:
+    value:
+        simple:
+            act: silu
+            depth: 16
+            kernel: 5
+            layers: 3
+            minres: 4
+            mults:
+                - 1
+                - 2
+                - 3
+                - 4
+                - 4
+            norm: rms
+            outer: true
+            symlog: true
+            units: 256
+            winit: normal
+        spaces: image
+        typ: simple
+env:
+    value:
+        atari:
+            actions: all
+            aggregate: max
+            autostart: false
+            gray: true
+            lives: unused
+            noops: 0
+            pooling: 2
+            repeat: 4
+            resize: pillow
+            size:
+                - 64
+                - 64
+            sticky: true
+        atari100k:
+            actions: all
+            autostart: false
+            gray: false
+            length: 100000
+            lives: unused
+            noops: 0
+            repeat: 4
+            resize: pillow
+            size:
+                - 64
+                - 64
+            sticky: false
+        crafter:
+            logs: false
+            size:
+                - 64
+                - 64
+            use_logdir: false
+        dmc:
+            camera: -1
+            image: true
+            repeat: 2
+            size:
+                - 64
+                - 64
+        dmlab:
+            actions: popart
+            episodic: true
+            repeat: 4
+            size:
+                - 64
+                - 64
+            use_seed: false
+        loconav:
+            camera: -1
+            repeat: 2
+            size:
+                - 64
+                - 64
+        minecraft:
+            break_speed: 100
+            logs: false
+            size:
+                - 64
+                - 64
+        procgen:
+            size:
+                - 64
+                - 64
+eval_dir:
+    value: ""
+filter:
+    value: score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean
+horizon:
+    value: 333
+imag_length:
+    value: 15
+imag_repeat:
+    value: 1
+imag_start:
+    value: all
+imag_unroll:
+    value: false
+jax:
+    value:
+        assert_num_devices: -1
+        checks: false
+        compute_dtype: bfloat16
+        debug: false
+        fetch_policy_carry: false
+        jit: true
+        logical_cpus: 0
+        nvidia_flags: false
+        param_dtype: float32
+        platform: gpu
+        policy_devices:
+            - 0
+        prealloc: true
+        profiler: false
+        sync_every: 1
+        train_devices:
+            - 0
+        transfer_guard: true
+        xla_dump: false
+logdir:
+    value: ~/logdir/log_orig_dreamerv3
+loss_scales:
+    value:
+        actor: 1
+        cont: 1
+        critic: 1
+        dec_cnn: 1
+        dec_mlp: 1
+        dyn: 1
+        rep: 0.1
+        replay_critic: 0.3
+        reward: 1
+lrs:
+    value:
+        actor: 3e-05
+        con: 0.0001
+        critic: 3e-05
+        dec: 0.0001
+        dyn: 0.0001
+        enc: 0.0001
+        rew: 0.0001
+method:
+    value: name
+opt:
+    value:
+        agc: 0.3
+        anneal: 0
+        beta1: 0.9
+        beta2: 0.999
+        details: false
+        eps: 1e-20
+        globclip: 0
+        lr: 4e-05
+        momentum: true
+        pmin: 0.001
+        scaler: rms
+        schedule: constant
+        warmup: 1000
+        wd: 0
+random_agent:
+    value: false
+replay:
+    value:
+        chunksize: 1024
+        fracs:
+            priority: 0
+            recency: 0
+            uniform: 1
+        online: true
+        prio:
+            exponent: 0.8
+            initial: inf
+            maxfrac: 0.5
+            zero_on_sample: true
+        priosignal: model
+        recexp: 1
+        save_wait: false
+        size: 5e+06
+replay_context:
+    value: 1
+replay_critic_bootstrap:
+    value: imag
+replay_critic_grad:
+    value: true
+replay_critic_loss:
+    value: true
+replay_length:
+    value: 0
+replay_length_eval:
+    value: 0
+report:
+    value: true
+report_gradnorms:
+    value: false
+report_openl_context:
+    value: 8
+reset_context:
+    value: 0
+retnorm:
+    value:
+        impl: perc
+        limit: 1
+        perchi: 95
+        perclo: 5
+        rate: 0.01
+return_lambda:
+    value: 0.95
+return_lambda_replay:
+    value: 0.95
+reward_grad:
+    value: true
+rewhead:
+    value:
+        act: silu
+        bins: 255
+        block_fans: false
+        block_norm: false
+        dist: symexp_twohot
+        inputs:
+            - deter
+            - stoch
+        layers: 1
+        norm: rms
+        outscale: 0
+        units: 256
+        winit: normal
+rssm_loss:
+    value:
+        free: 1
+run:
+    value:
+        actor_addr: tcp://localhost:{auto}
+        actor_batch: 8
+        actor_threads: 4
+        agent_process: false
+        driver_parallel: true
+        duration: 0
+        env_replica: -1
+        eval_eps: 1
+        eval_every: 180
+        eval_fill: 0
+        eval_initial: true
+        expl_until: 0
+        from_checkpoint: ""
+        ipv6: false
+        log_episode_timeout: 60
+        log_every: 120
+        log_keys_avg: ^$
+        log_keys_max: ^$
+        log_keys_sum: ^$
+        log_keys_video:
+            - image
+        log_video_fps: 20
+        log_video_streams: 4
+        log_zeros: true
+        logger_addr: tcp://localhost:{auto}
+        num_envs: 16
+        num_envs_eval: 4
+        remote_replay: false
+        replay_addr: tcp://localhost:{auto}
+        save_every: 900
+        script: train
+        steps: 120000
+        timer: true
+        train_fill: 0
+        train_ratio: 32
+        usage:
+            gc: false
+            gputil: false
+            malloc: false
+            nvsmi: true
+            psutil: true
+seed:
+    value: 0
+separate_lrs:
+    value: false
+slow_critic_fraction:
+    value: 0.02
+slow_critic_update:
+    value: 1
+slowreg:
+    value: 1
+slowtar:
+    value: false
+task:
+    value: dmc_walker_walk
+tensorboard_videos:
+    value: true
+valnorm:
+    value:
+        impl: "off"
+        limit: 1e-08
+        rate: 0.01
+wrapper:
+    value:
+        checks: true
+        discretize: 0
+        length: 0
+        reset: true

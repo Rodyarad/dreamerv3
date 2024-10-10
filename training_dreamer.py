@@ -15,6 +15,7 @@ def main():
       **dreamerv3.Agent.configs['dmc_vision'],
       'logdir': f'~/logdir/log_orig_dreamerv3',
       'run.train_ratio': 32,
+      'run.steps' : 1.2e5,
   })
   config = embodied.Flags(config).parse()
 

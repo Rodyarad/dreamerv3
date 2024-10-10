@@ -13,8 +13,10 @@ def main():
   config = embodied.Config(dreamerv3.Agent.configs['defaults'])
   config = config.update({
       **dreamerv3.Agent.configs['dmc_vision'],
-      'logdir': f'~/logdir/log_orig_dreamerv3',
+      'logdir': f'~/logdir/log_bisim_dreamerv3',
       'run.train_ratio': 32,
+      'run.steps' : 1.2e5,
+      'dyn.rssm.classes': 0
   })
   config = embodied.Flags(config).parse()
 
@@ -22,7 +24,7 @@ def main():
   logdir = embodied.Path(config.logdir)
   logdir.mkdir()
   config.save(logdir / 'config.yaml')
-
+  
   def make_agent(config):
     env = make_env(config)
     agent = dreamerv3.Bisim_Agent(env.obs_space, env.act_space, config)

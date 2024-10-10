@@ -406,7 +406,7 @@ class Bisim_Agent(nj.Module):
     losses = {k: v * self.scales[k] for k, v in losses.items()}
 
     #Добавляем бисимуляционную функцию потерь
-    losses['bisim'] = self.bisim_loss(data)
+    losses['bisim'] = self.bisim_loss(data, rew, acts)
 
     loss = jnp.stack([v.mean() for k, v in losses.items()]).sum()
     newact = {k: data[k][:, -1] for k in self.act_space}
@@ -416,31 +416,30 @@ class Bisim_Agent(nj.Module):
     return loss, (outs, carry, metrics)
   
   # Реализация функции бисимуляционной потери
-  def bisim_loss(self, data):
-      h = self.enc(data) 
+  def bisim_loss(self, data, rew, acts):
+      h = self.enc(data)
 
       batch_size = h.shape[0]
       perm = np.random.permutation(batch_size)
       h2 = h[perm]
 
-      action = self.actor(h, bdims=1)
-      _, next_latent = self.dyn.imagine(h, action, bdims=1)
+      _, outs = self.dyn.imagine(h, acts)
 
-      reward = self.rew(next_latent)
+      deter1, stoch1 = sg(outs['deter']), sg(outs['stoch'])
+      deter2, stoch2 = sg(deter1[perm]), sg(stoch1[perm])
+
+      reward = rew
       reward2 = reward[perm]
 
-      pred_next_latent_logits = sg(next_latent['logit'])
-      pred_next_latent_logits2 = sg(pred_next_latent_logits[perm])
-
-      prob1 = jax.nn.softmax(pred_next_latent_logits, axis=-1)
-      prob2 = jax.nn.softmax(pred_next_latent_logits2, axis=-1)
-
-      transition_dist = jsp.special.kl_div(prob1, prob2).sum(axis=-1).mean()
+      transition_dist = jnp.sqrt(
+        (deter1 - deter2)**2 +
+        (stoch1 - stoch2)**2
+      )
 
       z_dist = jnp.abs(h - h2).mean()
       r_dist = jnp.abs(reward - reward2).mean()
 
-      bisimilarity = r_dist + 0.99 * transition_dist
+      bisimilarity = r_dist + self.discount * transition_dist
       loss = (z_dist - bisimilarity) ** 2
       loss = jnp.mean(loss) 
 
